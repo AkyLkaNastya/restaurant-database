@@ -1,5 +1,11 @@
 from tkinter import *
-from tkinter import messagebox, simpledialog, scrolledtext
+from tkinter import messagebox, simpledialog, scrolledtext, ttk
+import time
+
+def dismiss(window):
+    window.grab_release() 
+    window.destroy()
+    
 
 def create_tables(cur):
     cur.execute(''' CREATE TABLE IF NOT EXISTS staff (
