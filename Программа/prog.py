@@ -1,87 +1,73 @@
 import sqlite3 as sq
 from sqlite3 import Error
+
 import tkinter as tk
+from tkinter import ttk 
 from tkinter import *
 from tkinter import messagebox, simpledialog, scrolledtext
-
+import time
 from functions import *
+
+'''________________________________________________________________________
+
+                Создание базы данных, если её ещё нет
+________________________________________________________________________'''
+
 
 file_path = 'restaurant_data.db'
 with sq.connect(file_path) as con:
     cur = con.cursor()
 create_tables(cur)
 
-class LoadingWindow(tk.Tk):
-    def __init__(self, *args, **kwargs):
-        tk.Tk.__init__(self, *args, **kwargs)
-        def center_window(window):
-            window.update_idletasks()
-            width = 400
-            height = 600
-            screen_width = window.winfo_screenwidth()
-            screen_height = window.winfo_screenheight()
-            x = (screen_width - width) // 2
-            y = (screen_height - height) // 2
-            window.geometry(f"{width}x{height}+{x}+{y}")
+'''________________________________________________________________________
 
-            # bgimg= tk.PhotoImage(file = "background.gif")
-            # limg= Label(self, i=bgimg)
-            # limg.pack()
+                            Загрузочное окно
+________________________________________________________________________'''
 
-        def loading():
-            time.sleep(2)
-            self.destroy()
+root = Tk() 
 
-        self.title("Loading database...")
-        self.iconbitmap(default="хинкали.ico")
-        center_window(self)
+def loading():
+    time.sleep(2)
+    root.destroy()
 
-        self.overrideredirect(True)
-        label_1 = Label(self, text="Минутку", font=("Arial Bold", 20)) 
-        label_1.pack(anchor="center", expand=0)  
-        label_2 = tk.Label(self, text = "Летим в Хинкальстан", font=("Arial Bold", 20))
-        label_2.pack(anchor="s", expand=1)
+center_window(root)
+root.configure(bg='#D0BBA4')
 
-        self.after(200, loading)
+root.overrideredirect(True)
+bg1 = PhotoImage(file = "background.gif") 
+label1 = Label(root, image = bg1) 
+label1.place(relx = 0.5, rely = 0.5, anchor = CENTER)
 
-class DatabaseApp(tk.Tk):
-    def __init__(self, *args, **kwargs):
-        tk.Tk.__init__(self, *args, **kwargs)
-        self.state('zoomed')
-        self.configure(bg='#D0BBA4')
-        self.overrideredirect(True)
+root.after(200, loading)
+root.mainloop()
 
-        # Кнопка для закрытия приложения
-        self.protocol("WM_DELETE_WINDOW", lambda: dismiss(self)) # перехватываем нажатие на крестик
-        close_button = ttk.Button(self, text="X", command=lambda: dismiss(self))
-        close_button.pack(anchor="e", expand=0)
-        self.grab_set() 
+'''________________________________________________________________________
 
-        label_1 = Label(self, text="добро пожаловать", font=("Arial Bold", 20)) 
-        label_1.pack()
+                              Главное окно
+________________________________________________________________________'''
 
-        # Кнопка для удаления базы данных
-        self.delete_db_button = Button(self.master, text='Удалить базу данных', command=delete_tables)
-        self.delete_db_button.pack(pady=5)
+root = Tk() 
+root.state('zoomed')
+root.title('Restaurant\'s DataBase manager')
+root.configure(bg='#92B96E')
 
-        # Кнопка для вывода содержимого таблиц
-        self.show_tables_button = Button(self.master, text='Вывод содержимого таблиц', command=show_tables)
-        self.show_tables_button.pack(pady=5)
+bg = PhotoImage(file = "bg.gif") 
+label1 = Label(root, image = bg) 
+label1.place(relx = 0.5, rely = 0.5, anchor = CENTER) 
 
-        # Кнопка для очистки таблицы
-        self.clear_table_button = Button(self.master, text='Очистить таблицу', command=clear_table)
-        self.clear_table_button.pack(pady=5)
+notebook = ttk.Notebook(height=600, width=1000)
+notebook.pack(expand=1)
 
-        # Поле вывода информации
-        self.text_area = scrolledtext.ScrolledText(self.master, width=40, height=10)
-        self.text_area.pack(pady=10)
+frame1 = ttk.Frame(notebook)
+frame2 = ttk.Frame(notebook)
+frame3 = ttk.Frame(notebook)
+frame4 = ttk.Frame(notebook)
 
-def main():
-    load = LoadingWindow()
-    load.mainloop()
-    app = DatabaseApp()
-    app.mainloop()
-    return 0
+notebook.add(frame1, text="Поиск")
+notebook.add(frame2, text="Добавить")
+notebook.add(frame3, text="Таблицы")
+notebook.add(frame4, text="Удалить базу данных")
 
-if __name__ == '__main__':
-    main()
+
+
+root.mainloop()

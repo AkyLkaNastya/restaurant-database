@@ -1,18 +1,23 @@
-from tkinter import *
-from tkinter import ttk
- 
-root = Tk()
-root.title("METANIT.COM")
-root.geometry("250x200")
-root.overrideredirect(True)
- 
-def dismiss(window):
-    window.grab_release() 
-    window.destroy()
- 
-root.protocol("WM_DELETE_WINDOW", lambda: dismiss(root)) # перехватываем нажатие на крестик
-close_button = ttk.Button(root, text="X", command=lambda: dismiss(root))
-close_button.pack(anchor="e", expand=0)
-root.grab_set()       # захватываем пользовательский ввод
- 
-root.mainloop()
+from tkinter import *  
+from tkinter import ttk 
+
+window = Tk()  
+window.title("Добро пожаловать в приложение PythonRu")  
+window.geometry('400x250')  
+
+tab_control = ttk.Notebook(window)  
+
+tab1 = ttk.Frame(tab_control)  
+tab2 = ttk.Frame(tab_control) 
+
+tab_control.add(tab1, text='Первая')
+tab_control.add(tab2, text='Вторая')  
+
+lbl1 = Label(tab1, text='Вкладка 1')  
+lbl1.grid(column=0, row=0)  
+lbl2 = Label(tab2, text='Вкладка 2')  
+lbl2.grid(column=0, row=0)
+
+tab_control.pack(expand=1, fill='both')  
+
+window.mainloop()

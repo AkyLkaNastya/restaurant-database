@@ -1,11 +1,15 @@
 from tkinter import *
-from tkinter import messagebox, simpledialog, scrolledtext, ttk
-import time
+from tkinter import messagebox, simpledialog
 
-def dismiss(window):
-    window.grab_release() 
-    window.destroy()
-    
+def center_window(window):
+    window.update_idletasks()
+    width = 440
+    height = 650
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+    x = (screen_width - width) // 2
+    y = (screen_height - height) // 2
+    window.geometry(f"{width}x{height}+{x}+{y}")
 
 def create_tables(cur):
     cur.execute(''' CREATE TABLE IF NOT EXISTS staff (
@@ -71,14 +75,14 @@ def create_tables(cur):
         )''')
     
 def delete_tables(cur):
-    cur.execute("DROP TABLE IF EXISTS staff")
-    cur.execute("DROP TABLE IF EXISTS orders")
-    cur.execute("DROP TABLE IF EXISTS order_positions")
-    cur.execute("DROP TABLE IF EXISTS menu")
-    cur.execute("DROP TABLE IF EXISTS composition")
-    cur.execute("DROP TABLE IF EXISTS storage")
-    cur.execute("DROP TABLE IF EXISTS supplies")
-    cur.execute("DROP TABLE IF EXISTS supplier")
+    cur.execute('''DROP TABLE IF EXISTS staff''')
+    cur.execute('''DROP TABLE IF EXISTS orders''')
+    cur.execute('''DROP TABLE IF EXISTS order_positions''')
+    cur.execute('''DROP TABLE IF EXISTS menu''')
+    cur.execute('''DROP TABLE IF EXISTS composition''')
+    cur.execute('''DROP TABLE IF EXISTS storage''')
+    cur.execute('''DROP TABLE IF EXISTS supplies''')
+    cur.execute('''DROP TABLE IF EXISTS supplier''')
 
 def show_tables(self):
     table_name = simpledialog.askstring("Показать таблицу", "Введите имя таблицы:")
