@@ -1,116 +1,82 @@
 from tkinter import *
+import tkinter as tk
+from tkinter import ttk 
 from tkinter import messagebox, simpledialog
 
-def center_window(window):
+def center_window(window, width, height):
     window.update_idletasks()
-    width = 440
-    height = 650
     screen_width = window.winfo_screenwidth()
     screen_height = window.winfo_screenheight()
     x = (screen_width - width) // 2
     y = (screen_height - height) // 2
     window.geometry(f"{width}x{height}+{x}+{y}")
 
-def create_tables(cur):
-    cur.execute(''' CREATE TABLE IF NOT EXISTS staff (
-        worker_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name VARCHAR(200) NOT NULL,
-        job_title VARCHAR(100) CHECK (job_title IN ('повар', 'официант', 'бармен', 'шеф-повар', 'администратор', 'охранник', 'уборщик')),
-        salary NUMERIC(8, 2) DEFAULT 40000.00,
-        address VARCHAR(200) NOT NULL,
-        phone_number CHAR(16) CHECK (phone_number LIKE('+7(___)___-__-__'))
-        )''')
-    cur.execute(''' CREATE TABLE IF NOT EXISTS orders (
-        order_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        worker_id INTEGER,
-        date DATE NOT NULL,
-        total_cost NUMERIC(5, 0),
-        FOREIGN KEY (worker_id) REFERENCES staff(worker_id)
-        )''')
-    cur.execute(''' CREATE TABLE IF NOT EXISTS order_positions (
-        order_id INT,
-        dish VARCHAR(50),
-        amount INT CHECK(amount > 0),
-        PRIMARY KEY (order_id, dish),
-        FOREIGN KEY (order_id) REFERENCES orders(order_id),
-        FOREIGN KEY (dish) REFERENCES menu(dish)
-        )''')
-    cur.execute(''' CREATE TABLE IF NOT EXISTS menu (
-        dish VARCHAR(50),
-        price NUMERIC(4, 0) CHECK(price > 0) NOT NULL,
-        rate INT CHECK(rate BETWEEN 1 AND 5) NOT NULL,
-        stop_list VARCHAR(10) CHECK (stop_list IN ('True', 'False')),
-        PRIMARY KEY (dish)
-        );''')
-    cur.execute(''' CREATE TABLE IF NOT EXISTS composition (
-        dish VARCHAR(50),
-        ingredient VARCHAR(30),
-        amount INT CHECK (amount > 0),
-        PRIMARY KEY (dish, ingredient),
-        FOREIGN KEY (dish) REFERENCES menu(dish),
-        FOREIGN KEY (ingredient) REFERENCES storage(ingredient)
-        )''')
-    cur.execute(''' CREATE TABLE IF NOT EXISTS storage (
-        ingredient VARCHAR(30),
-        left INT DEFAULT 0,
-        max INT CHECK (max > 0),
-        CHECK (left < max),
-        PRIMARY KEY (ingredient)
-        )''')
-    cur.execute(''' CREATE TABLE IF NOT EXISTS supplies (
-        ingredient VARCHAR(30),
-        amount INT CHECK (amount > 0) DEFAULT 1,
-        price MONEY CHECK (price > 0) NOT NULL,
-        supplier_name VARCHAR(50) NOT NULL,
-        PRIMARY KEY (ingredient),
-        FOREIGN KEY (ingredient) REFERENCES storage(ingredient),
-        FOREIGN KEY (supplier_name) REFERENCES supplier(name)
-        )''')
-    cur.execute(''' CREATE TABLE IF NOT EXISTS supplier (
-        name VARCHAR(50),
-        city VARCHAR(50) NOT NULL,
-        delivery VARCHAR(10) CHECK (delivery IN ('фура', 'газель', 'курьер')),
-        contact_person VARCHAR(100) NOT NULL,
-        PRIMARY KEY (name)
-        )''')
-    
-def delete_tables(cur):
-    cur.execute('''DROP TABLE IF EXISTS staff''')
-    cur.execute('''DROP TABLE IF EXISTS orders''')
-    cur.execute('''DROP TABLE IF EXISTS order_positions''')
-    cur.execute('''DROP TABLE IF EXISTS menu''')
-    cur.execute('''DROP TABLE IF EXISTS composition''')
-    cur.execute('''DROP TABLE IF EXISTS storage''')
-    cur.execute('''DROP TABLE IF EXISTS supplies''')
-    cur.execute('''DROP TABLE IF EXISTS supplier''')
+def add_menu_position(menu_items, menu_listbox):
+    def add_ingredient():
+        ingredient = ingredient_entry.get()
+        quantity = quantity_entry.get()
 
-def show_tables(self):
-    table_name = simpledialog.askstring("Показать таблицу", "Введите имя таблицы:")
-    if table_name:
-        try:
-            self.connect_db()
-            output = ""
-            output += f"Таблица: {table_name[0]}\n"
-            rows = self.cursor.execute(f"SELECT * FROM {table_name[0]}").fetchall()
-            for row in rows:
-                output += str(row) + "\n"
-            output += "\n"
-            self.text_area.delete(1.0, END)
-            self.text_area.insert(END, output)
-        except Exception as e:
-            messagebox.showerror("Ошибка", str(e))
-        finally:
-            self.close_db()
+        if ingredient and quantity:
+            ingredients_listbox.insert(tk.END, f"{ingredient} - {quantity}")
+            ingredient_entry.delete(0, last=END)
+            quantity_entry.delete(0, last=END)
 
-def clear_table(self):
-    table_name = simpledialog.askstring("Очистить таблицу", "Введите имя таблицы:")
-    if table_name:
-        try:
-            self.connect_db()
-            self.cursor.execute(f"DELETE FROM {table_name};")
-            self.connection.commit()
-            messagebox.showinfo("Успех", f"Таблица {table_name} очищена.")
-        except Exception as e:
-            messagebox.showerror("Ошибка", str(e))
-        finally:
-            self.close_db()
+    def add_menu_item():
+        dish = dish_entry.get()
+        price = price_entry.get()
+
+        if dish and price:
+            new_item = {"dish": dish, "price": float(price), "ingredients": []}
+
+            for i in range(ingredients_listbox.size()):
+                ingredient = ingredients_listbox.get(i)
+                new_item["ingredients"].append(ingredient)
+
+            menu_items.append(new_item)
+            dish_entry.delete(0, last=END)
+            price_entry.delete(0, last=END)
+            ingredients_listbox.delete(0, tk.END)
+
+            # Add the new item to the menu_listbox
+            menu_listbox.insert(tk.END, f"{dish} - ${price}")
+
+            messagebox.showinfo("Fake news", f"Допустим, что блюдо успешно добавлено!")
+            root.destroy()
+
+
+    # Create the main window
+    root = tk.Tk()
+    root.title("Menu Manager")
+
+    # Create the widgets
+    dish_label = ttk.Label(root, text="Название блюда:")
+    dish_label.grid(row=0, column=0, padx=(10, 0), pady=(10, 0))
+    dish_entry = ttk.Entry(root)
+    dish_entry.grid(row=0, column=1, padx=(0, 10), pady=(10, 0))
+
+    price_label = ttk.Label(root, text="Цена:")
+    price_label.grid(row=1, column=0, padx=(10, 0), pady=(0, 10))
+    price_entry = ttk.Entry(root)
+    price_entry.grid(row=1, column=1, padx=(0, 10), pady=(0, 10))
+
+    ingredient_label = ttk.Label(root, text="Ингредиент:")
+    ingredient_label.grid(row=2, column=0, padx=(10, 0), pady=(0, 10))
+    ingredient_entry = ttk.Entry(root)
+    ingredient_entry.grid(row=2, column=1, padx=(0, 10), pady=(0, 10))
+
+    quantity_label = ttk.Label(root, text="Количество:")
+    quantity_label.grid(row=3, column=0, padx=(10, 0), pady=(0, 10))
+    quantity_entry = ttk.Entry(root)
+    quantity_entry.grid(row=3, column=1, padx=(0, 10), pady=(0, 10))
+
+    add_ingredient_button = ttk.Button(root, text="Добавить ингредиентt", command=add_ingredient)
+    add_ingredient_button.grid(row=4, column=0, columnspan=2, padx=(10, 10), pady=(10, 0))
+
+    ingredients_listbox = tk.Listbox(root, width=30, height=5)
+    ingredients_listbox.grid(row=5, column=0, columnspan=2, padx=(10, 10), pady=(0, 10))
+
+    add_menu_item_button = ttk.Button(root, text="Добаить позицию", command=add_menu_item)
+    add_menu_item_button.grid(row=6, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
+
+    # Run the main loop
+    root.mainloop()
