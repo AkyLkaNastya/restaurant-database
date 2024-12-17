@@ -36,6 +36,11 @@ ________________________________________________________________________'''
 # load.after(200, loading)
 # load.mainloop()
 
+'''____________________________________                              Главное                                Авторизация
+________________________________________________________________________'''
+
+
+
 '''________________________________________________________________________
 
                               Главное окно
@@ -73,7 +78,6 @@ notebook.add(exit, text="Выйти")
                                    Меню 
 ________________________________________________________________________'''
 
-# Sample data for the menu
 menu_items = [
     {"dish": "Burger", "price": 10, "ingredients": ["Bread", "Patty", "Cheese", "Lettuce", "Tomato"]},
     {"dish": "Pizza", "price": 15, "ingredients": ["Dough", "Cheese", "Tomato sauce", "Toppings"]},
@@ -132,45 +136,70 @@ ________________________________________________________________________'''
                                   Персонал
 ________________________________________________________________________'''
 
-# class Delete_window(Tk):
-#     def __init__(self):
-#         super().__init__()
- 
-#         center_window(self, 500, 400)
-#         self.title('Delete DataBase')
-#         self.attributes("-toolwindow", True)
-#         self
 
-#         lbl1 = Label(self, text='Введите фразу, чтобы подтвердить:', fg='#3F4D38')  
-#         lbl1.pack(expand=1)
-#         lbl2 = Label(self, text='Удалить базу данных', fg='#5A7542')  
-#         lbl2.pack(expand=1)
+frame = tk.Frame(staff)
+frame.pack(expand=0)
 
-#         entry = ttk.Entry(self)
-#         entry.pack(expand=1)
+# Create a search bar widget
+search_bar = Entry(frame, width=50)
+search_bar.pack(side=LEFT, pady=10)
+def search_staff():
+    search_staff_members()
 
-#         def delete_database():
-#             if entry.get() == 'Удалить базу данных':
-#                 showwarning(title="Внимание", message="База данных была успешно удалена. Программа будет закрыта.")
-#                 self.destroy()
-#                 root.destroy()
-#             else:
-#                 showerror(title="Ошибка", message="Фраза была введена неправильно.")
-#                 self.destroy()
+search_button = Button(frame, text="Поиск", bg="#92B96E", fg="#3F4D38", command=search_staff)
+search_button.pack(expand=0)
 
-#         btn = ttk.Button(self, text="Click", command=delete_database)
-#         btn.pack(expand=1)
+def search_staff_members():
+    query = search_bar.get().lower()
+    filtered_members = [member for member in staff_members if query in member["name"].lower()]
 
-#         self.mainloop()
+    staff_listbox.delete(0, tk.END)
 
-# def click_delete():  
-#     delete_window = Delete_window()
+    for member in filtered_members:
+        staff_listbox.insert(tk.END, f"{member['id']} - {member['name']} - {member['position']} - {member['salary']}")
 
-# lbl1 = Label(delete, text='Вы уверены, что хотите удалить базу данных?', fg='#3F4D38')  
-# lbl1.pack(expand=1)
-# lbl2 = Label(delete, text='Все данные будут удалены безвозвратно!', fg='#3F4D38')  
-# lbl2.pack(expand=1)
-# delete_button = Button(delete, text='Удалить', bg="#CC5A5A", fg="#EEE6D4", command=click_delete)
-# delete_button.pack(expand=1)
+staff_listbox = Listbox(staff, width=80, height=4)
+staff_listbox.pack(pady=10)
+
+staff_members = [
+    {"id": "A123", "name": "John Doe", "position": "Admin", "salary": 5000, "address": "Rodionova st. 43", "phone": "+1(902)345-23-45"},
+    {"id": "W456", "name": "Jane Smith", "position": "Waiter", "salary": 2000, "address": "Central Park 43", "phone": "+1(934)323-64-43"},
+    {"id": "C789", "name": "Michael Johnson", "position": "Chef", "salary": 4000, "address": "Rodionova st. 42", "phone": "+1(902)855-72-73"},
+]
+
+for member in staff_members:
+    staff_listbox.insert(tk.END, f"{member['id']} - {member['name']} - {member['position']} - {member['salary']}")
+
+
+def show_personal_info(event):
+    selected_item = staff_listbox.get(staff_listbox.curselection()[0])
+    id, name, position, salary = selected_item.split(" - ")
+
+    personal_info = f"Имя: {name}\nДолжность: {position}\nЗарплата: {salary}"
+    messagebox.showinfo("Личная информация", personal_info)
+
+staff_listbox.bind("<Button-1>", show_personal_info)
+
+# Create a function to delete a selected staff member
+def delete_staff_member(event):
+    selected_item = staff_listbox.get(staff_listbox.curselection()[0])
+    id, name, position, salary = selected_item.split(" - ")
+
+    confirm_delete = messagebox.askyesno("Удалить сотрудника", f"Вы уверены, что хотите удалить сотрудника {name}?")
+
+    if confirm_delete:
+        for member in staff_members:
+            if member["id"] == id:
+                staff_members.remove(member)
+                break
+        staff_listbox.delete(staff_listbox.curselection()[0])
+
+staff_listbox.bind("<Button-3>", delete_staff_member)
+
+def add_staff_member():
+    add_staff(staff_listbox, staff_members)
+
+add_button = Button(staff, text="Добавить сотрудника", bg="#92B96E", fg="#3F4D38", command=add_staff_member)
+add_button.pack(pady=10)
 
 root.mainloop()
